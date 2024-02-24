@@ -57,11 +57,11 @@ class _MyHomePageState extends State<MyHomePage> {
     Widget page;
     switch (selectedIndex) {
       case 0:
-        page = GeneratorPage();
-        break;
+        page = LandingPage();
       case 1:
         page = FavoritesPage();
-        break;
+      case 3:
+        page = GeneratorPage();
       default:
         throw UnimplementedError('no widget for $selectedIndex');
     }
@@ -203,6 +203,44 @@ class FavoritesPage extends StatelessWidget {
             title: Text(pair.asLowerCase),
           ),
       ],
+    );
+  }
+}
+
+class LandingPage extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.only(
+          top: 130.0, // Only top padding is set to 20.0
+          left: 0.0,
+          right: 0.0,
+          bottom: 0.0,
+        ),
+        child: Column(
+          children: [
+            Image.asset(
+              './assets/logo-transparent.png',
+              width: 300,
+              height: 300,
+              // Adjust width and height as needed
+            ),
+            Text(
+              'Your mood, your universe <3',
+              style: TextStyle(fontSize: 18),
+            ),
+            SizedBox(height: 30),
+            ElevatedButton(
+              onPressed: () {
+                // Add your sign-in logic here
+              },
+              child: Text('Sign In'),
+            ),
+            SizedBox(height: 20),
+          ],
+        ),
+      ),
     );
   }
 }
