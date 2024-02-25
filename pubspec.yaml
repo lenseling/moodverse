@@ -1,5 +1,5 @@
 name: moodverse
-description: PearlHakcs 2024 Project.
+description: PearlHacks 2024 Project.
 
 publish_to: "none" # Remove this line if you wish to publish to pub.dev
 
@@ -27,3 +27,4 @@ flutter:
 
   assets:
     - assets/logo-transparent.png
+    - assets/astrobear.png
