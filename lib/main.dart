@@ -433,18 +433,25 @@ class SettingsPage extends StatefulWidget {
   _SettingsPageState createState() => _SettingsPageState();
 }
 
+class colorPreset {
+  final Color color;
+  final String presetName;
+
+  colorPreset({required this.color, required this.presetName});
+}
+
 class _SettingsPageState extends State<SettingsPage> {
   // Define variables to store user selections
-  Color? selectedColor;
+  colorPreset? selectedColor;
   String? selectedFont;
 
   // Define a list of colors and fonts for dropdown menus
 
-  List<Color> colors = [
-    Colors.red,
-    Colors.blue,
-    Colors.green,
-    Colors.yellow,
+  List<colorPreset> colors = [
+    colorPreset(color: Colors.red, presetName: "Red"),
+    colorPreset(color: Colors.blue, presetName: "Blue"),
+    colorPreset(color: Colors.green, presetName: "Green"),
+    colorPreset(color: Colors.yellow, presetName: "Yellow"),
   ];
 
   List<String> fonts = [
@@ -469,17 +476,17 @@ class _SettingsPageState extends State<SettingsPage> {
               'Select Background Color:',
               style: TextStyle(fontSize: 18),
             ),
-            DropdownButton<Color>(
+            DropdownButton<colorPreset>(
               value: selectedColor,
-              onChanged: (Color? color) {
+              onChanged: (colorPreset? color) {
                 setState(() {
                   selectedColor = color;
                 });
               },
-              items: colors.map((Color color) {
-                return DropdownMenuItem<Color>(
+              items: colors.map((colorPreset color) {
+                return DropdownMenuItem<colorPreset>(
                   value: color,
-                  child: Text(color.toString()),
+                  child: Text(color.presetName),
                 );
               }).toList(),
             ),
