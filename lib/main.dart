@@ -82,6 +82,8 @@ class _MyHomePageState extends State<MyHomePage> {
         page = MyJournalPage();
       case 3:
         page = GeneratorPage();
+      case 4:
+        page = SettingsPage();
       default:
         throw UnimplementedError('no widget for $selectedIndex');
     }
@@ -109,6 +111,10 @@ class _MyHomePageState extends State<MyHomePage> {
                   NavigationRailDestination(
                     icon: Icon(Icons.help),
                     label: Text('Prompts'),
+                  ),
+                  NavigationRailDestination(
+                    icon: Icon(Icons.settings),
+                    label: Text('Settings'),
                   ),
                 ],
                 selectedIndex: selectedIndex,
@@ -419,5 +425,94 @@ class JournalEntry {
 
   void toggleFavorite() {
     isFavorite = !isFavorite;
+  }
+}
+
+class SettingsPage extends StatefulWidget {
+  @override
+  _SettingsPageState createState() => _SettingsPageState();
+}
+
+class _SettingsPageState extends State<SettingsPage> {
+  // Define variables to store user selections
+  Color? selectedColor;
+  String? selectedFont;
+
+  // Define a list of colors and fonts for dropdown menus
+
+  List<Color> colors = [
+    Colors.red,
+    Colors.blue,
+    Colors.green,
+    Colors.yellow,
+  ];
+
+  List<String> fonts = [
+    'Arial',
+    'Roboto',
+    'Times New Roman',
+    'Courier New',
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Settings'),
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Select Background Color:',
+              style: TextStyle(fontSize: 18),
+            ),
+            DropdownButton<Color>(
+              value: selectedColor,
+              onChanged: (Color? color) {
+                setState(() {
+                  selectedColor = color;
+                });
+              },
+              items: colors.map((Color color) {
+                return DropdownMenuItem<Color>(
+                  value: color,
+                  child: Text(color.toString()),
+                );
+              }).toList(),
+            ),
+            SizedBox(height: 20),
+            Text(
+              'Select Text Font:',
+              style: TextStyle(fontSize: 18),
+            ),
+            DropdownButton<String>(
+              value: selectedFont,
+              onChanged: (String? font) {
+                setState(() {
+                  selectedFont = font;
+                });
+              },
+              items: fonts.map((String font) {
+                return DropdownMenuItem<String>(
+                  value: font,
+                  child: Text(font),
+                );
+              }).toList(),
+            ),
+            SizedBox(height: 20),
+            ElevatedButton(
+              onPressed: () {
+                // Apply selected settings (e.g., update background color and text font)
+                // You can implement this logic based on your app's requirements
+              },
+              child: Text('Apply Settings'),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }
