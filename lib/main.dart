@@ -314,6 +314,8 @@ class Login extends StatelessWidget {
   }
 }
 
+
+
 class MyJournalPage extends StatefulWidget {
   @override
   _MyJournalPageState createState() => _MyJournalPageState();
@@ -321,68 +323,360 @@ class MyJournalPage extends StatefulWidget {
 
 class _MyJournalPageState extends State<MyJournalPage> {
   String _journalEntry = '';
+  List<JournalEntry> _savedEntries = [];
 
   @override
   Widget build(BuildContext context) {
-    return Center(
-      child: Column(
-        children: [
-          // Date at the top of the page
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Text(
-              'My Journal - ${DateTime.now().toString().substring(0, 10)}',
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-            ),
+    return DefaultTabController(
+      length: 2,
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text('My Journal'),
+          bottom: TabBar(
+            tabs: [
+              Tab(text: 'Write Entry'),
+              Tab(text: 'Saved Entries'),
+            ],
           ),
-          // User input for journal entry
-          Expanded(
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Container(
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(10.0),
-                  border: Border.all(color: Colors.grey),
-                ),
-                child: SingleChildScrollView(
-                  child: TextField(
-                    maxLines: null, // Allow multiple lines
-                    onChanged: (text) {
+        ),
+        body: TabBarView(
+          children: [
+            Center(
+              child: Column(
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Text(
+                      'My Journal - ${DateTime.now().toString().substring(0, 10)}',
+                      style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                  Expanded(
+                    child: Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(10.0),
+                          border: Border.all(color: Colors.grey),
+                        ),
+                        child: SingleChildScrollView(
+                          child: TextField(
+                            maxLines: null,
+                            onChanged: (text) {
+                              setState(() {
+                                _journalEntry = text;
+                              });
+                            },
+                            decoration: InputDecoration(
+                              hintText: 'Write your journal entry here...',
+                              contentPadding: EdgeInsets.all(16.0),
+                              border: InputBorder.none,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                  ElevatedButton(
+                    onPressed: () {
                       setState(() {
-                        _journalEntry = text;
+                        _savedEntries.add(JournalEntry(entry: _journalEntry, date: DateTime.now()));
+                        _journalEntry = '';
                       });
                     },
-                    decoration: InputDecoration(
-                      hintText: 'Write your journal entry here...',
-                      contentPadding: EdgeInsets.all(16.0),
-                      border: InputBorder.none,
-                    ),
+                    child: Text('Save Entry'),
+                  ),
+                ],
+              ),
+            ),
+            SavedEntriesTab(savedEntries: _savedEntries),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class SavedEntriesTab extends StatefulWidget {
+  final List<JournalEntry> savedEntries;
+
+  SavedEntriesTab({required this.savedEntries});
+
+  @override
+  _SavedEntriesTabState createState() => _SavedEntriesTabState();
+}
+
+class _SavedEntriesTabState extends State<SavedEntriesTab> {
+  @override
+  Widget build(BuildContext context) {
+    return ListView.builder(
+      itemCount: widget.savedEntries.length,
+      itemBuilder: (context, index) {
+        return ListTile(
+          title: Text(widget.savedEntries[index].entry),
+          subtitle: Text('Date: ${widget.savedEntries[index].date.toString().substring(0, 10)}'),
+          trailing: IconButton(
+            icon: Icon(widget.savedEntries[index].isFavorite ? Icons.favorite : Icons.favorite_border),
+            onPressed: () {
+              setState(() {
+                widget.savedEntries[index].toggleFavorite();
+              });
+            },
+          ),
+        );
+      },
+    );
+  }
+}
+
+class JournalEntry {
+  final String entry;
+  final DateTime date;
+  bool isFavorite;
+
+  JournalEntry({required this.entry, required this.date, this.isFavorite = false});
+
+  void toggleFavorite() {
+    isFavorite = !isFavorite;
+  }
+}
+
+
+void main() {
+  runApp(MyApp());
+}
+
+class MyApp extends StatefulWidget {
+  @override
+  _MyAppState createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+  Color _backgroundColor = Colors.white;
+  Color _fontColor = Colors.black;
+
+  void _showBackgroundColorPicker() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Pick a background color'),
+          content: SingleChildScrollView(
+            child: ColorPicker(
+              onColorChanged: (Color color) {
+                setState(() {
+                  _backgroundColor = color;
+                });
+              },
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  void _showFontColorPicker() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Pick a font color'),
+          content: SingleChildScrollView(
+            child: ColorPicker(
+              onColorChanged: (Color color) {
+                setState(() {
+                  _fontColor = color;
+                });
+              },
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      home: Scaffold(
+        appBar: AppBar(
+          title: Text('Color Customization'),
+        ),
+        body: Container(
+          color: _backgroundColor,
+          child: Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  'Sample Text',
+                  style: TextStyle(color: _fontColor, fontSize: 24.0),
+                ),
+                SizedBox(height: 20.0),
+                RaisedButton(
+                  onPressed: _showBackgroundColorPicker,
+                  child: Text('Change Background Color'),
+                ),
+                RaisedButton(
+                  onPressed: _showFontColorPicker,
+                  child: Text('Change Font Color'),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class ColorPicker extends StatefulWidget {
+  final Function(Color) onColorChanged;
+
+  ColorPicker({required this.onColorChanged});
+
+  @override
+  _ColorPickerState createState() => _ColorPickerState();
+}
+
+class _ColorPickerState extends State<ColorPicker> {
+  late Color _currentColor;
+
+  @override
+  void initState() {
+    super.initState();
+    _currentColor = Colors.black;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialColorPicker(
+      selectedColor: _currentColor,
+      onColorChange: (color) {
+        setState(() {
+          _currentColor = color;
+        });
+      },
+      onMainColorChange: (color) {
+        widget.onColorChanged(color);
+        Navigator.pop(context);
+      },
+    );
+  }
+}
+
+class MaterialColorPicker extends StatelessWidget {
+  final Color selectedColor;
+  final Function(Color) onColorChange;
+  final Function(Color) onMainColorChange;
+
+  MaterialColorPicker(
+      {required this.selectedColor,
+      required this.onColorChange,
+      required this.onMainColorChange});
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: List.generate(
+              9,
+              (index) => GestureDetector(
+                onTap: () {
+                  Color color = _getMaterialColor(index);
+                  onMainColorChange(color);
+                },
+                child: Container(
+                  width: 40,
+                  height: 40,
+                  margin: EdgeInsets.all(5),
+                  decoration: BoxDecoration(
+                    color: _getMaterialColor(index),
+                    shape: BoxShape.circle,
                   ),
                 ),
               ),
             ),
           ),
-          // Prompt at the bottom of the screen
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: [
-                Image.asset(
-                  'assets/astrobear.png',
-                  width: 50,
-                  height: 50,
+        ),
+        SizedBox(height: 10),
+        SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: List.generate(
+              9,
+              (index) => GestureDetector(
+                onTap: () {
+                  Color color = _getMaterialColor(index + 9);
+                  onMainColorChange(color);
+                },
+                child: Container(
+                  width: 40,
+                  height: 40,
+                  margin: EdgeInsets.all(5),
+                  decoration: BoxDecoration(
+                    color: _getMaterialColor(index + 9),
+                    shape: BoxShape.circle,
+                  ),
                 ),
-                Text(
-                  'How was your day?',
-                  style: TextStyle(fontSize: 18),
-                ),
-              ],
+              ),
             ),
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
+
+  Color _getMaterialColor(int index) {
+    switch (index) {
+      case 0:
+        return Colors.red;
+      case 1:
+        return Colors.pink;
+      case 2:
+        return Colors.purple;
+      case 3:
+        return Colors.deepPurple;
+      case 4:
+        return Colors.indigo;
+      case 5:
+        return Colors.blue;
+      case 6:
+        return Colors.lightBlue;
+      case 7:
+        return Colors.cyan;
+      case 8:
+        return Colors.teal;
+      case 9:
+        return Colors.green;
+      case 10:
+        return Colors.lightGreen;
+      case 11:
+        return Colors.lime;
+      case 12:
+        return Colors.yellow;
+      case 13:
+        return Colors.amber;
+      case 14:
+        return Colors.orange;
+      case 15:
+        return Colors.deepOrange;
+      case 16:
+        return Colors.brown;
+      case 17:
+        return Colors.grey;
+      case 18:
+        return Colors.blueGrey;
+      default:
+        return Colors.black;
+    }
+  }
 }
+
