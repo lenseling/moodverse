@@ -347,8 +347,7 @@ class _MyJournalPageState extends State<MyJournalPage> {
       length: 2,
       child: Scaffold(
         appBar: AppBar(
-          title: Text('My Journal'),
-          bottom: TabBar(
+          title: TabBar(
             tabs: [
               Tab(text: 'Write Entry'),
               Tab(text: 'Saved Entries'),
@@ -405,12 +404,30 @@ class _MyJournalPageState extends State<MyJournalPage> {
                     },
                     child: Text('Save Entry'),
                   ),
+                  Padding(
+                    padding: const EdgeInsets.all(20.0),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: [
+                        Image.asset(
+                          'assets/astrobear.png',
+                          width: 100,
+                          height: 100,
+                        ),
+                        Text(
+                          'How was your day?',
+                          style: TextStyle(fontSize: 18),
+                        ),
+                      ],
+                    ),
+                  ),
                 ],
               ),
             ),
             SavedEntriesTab(savedEntries: _savedEntries),
           ],
         ),
+        backgroundColor: Color.fromARGB(255, 217, 206, 243),
       ),
     );
   }
