@@ -45,6 +45,18 @@ class MyAppState extends ChangeNotifier {
     }
     notifyListeners();
   }
+
+  var journalEntries = <JournalEntry>[];
+
+  void addJournalEntry(JournalEntry entry) {
+    journalEntries.add(entry);
+    notifyListeners();
+  }
+
+  void removeJournalEntry(int index) {
+    journalEntries.removeAt(index);
+    notifyListeners();
+  }
 }
 
 class MyHomePage extends StatefulWidget {
@@ -65,6 +77,8 @@ class _MyHomePageState extends State<MyHomePage> {
         page = FavoritesPage();
       case 2:
         page = MyJournalPage();
+      case 3:
+        page = GeneratorPage();
       default:
         throw UnimplementedError('no widget for $selectedIndex');
     }
@@ -88,6 +102,10 @@ class _MyHomePageState extends State<MyHomePage> {
                   NavigationRailDestination(
                     icon: Icon(Icons.create),
                     label: Text('My Journal'),
+                  ),
+                  NavigationRailDestination(
+                    icon: Icon(Icons.help),
+                    label: Text('Prompts'),
                   ),
                 ],
                 selectedIndex: selectedIndex,
@@ -314,8 +332,6 @@ class Login extends StatelessWidget {
   }
 }
 
-
-
 class MyJournalPage extends StatefulWidget {
   @override
   _MyJournalPageState createState() => _MyJournalPageState();
@@ -348,7 +364,8 @@ class _MyJournalPageState extends State<MyJournalPage> {
                     padding: const EdgeInsets.all(16.0),
                     child: Text(
                       'My Journal - ${DateTime.now().toString().substring(0, 10)}',
-                      style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                      style:
+                          TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                     ),
                   ),
                   Expanded(
@@ -381,7 +398,8 @@ class _MyJournalPageState extends State<MyJournalPage> {
                   ElevatedButton(
                     onPressed: () {
                       setState(() {
-                        _savedEntries.add(JournalEntry(entry: _journalEntry, date: DateTime.now()));
+                        _savedEntries.add(JournalEntry(
+                            entry: _journalEntry, date: DateTime.now()));
                         _journalEntry = '';
                       });
                     },
@@ -415,9 +433,12 @@ class _SavedEntriesTabState extends State<SavedEntriesTab> {
       itemBuilder: (context, index) {
         return ListTile(
           title: Text(widget.savedEntries[index].entry),
-          subtitle: Text('Date: ${widget.savedEntries[index].date.toString().substring(0, 10)}'),
+          subtitle: Text(
+              'Date: ${widget.savedEntries[index].date.toString().substring(0, 10)}'),
           trailing: IconButton(
-            icon: Icon(widget.savedEntries[index].isFavorite ? Icons.favorite : Icons.favorite_border),
+            icon: Icon(widget.savedEntries[index].isFavorite
+                ? Icons.favorite
+                : Icons.favorite_border),
             onPressed: () {
               setState(() {
                 widget.savedEntries[index].toggleFavorite();
@@ -435,11 +456,10 @@ class JournalEntry {
   final DateTime date;
   bool isFavorite;
 
-  JournalEntry({required this.entry, required this.date, this.isFavorite = false});
+  JournalEntry(
+      {required this.entry, required this.date, this.isFavorite = false});
 
   void toggleFavorite() {
     isFavorite = !isFavorite;
   }
 }
-
-
