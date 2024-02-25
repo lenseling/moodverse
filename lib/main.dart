@@ -306,7 +306,7 @@ class LandingPage extends StatelessWidget {
     return Center(
       child: Padding(
         padding: const EdgeInsets.only(
-          top: 130.0, // Only top padding is set to 20.0
+          top: 130.0, 
           left: 0.0,
           right: 0.0,
           bottom: 0.0,
@@ -317,7 +317,6 @@ class LandingPage extends StatelessWidget {
               './assets/logo-transparent.png',
               width: 300,
               height: 300,
-              // Adjust width and height as needed
             ),
             Text(
               'Your mood, your universe. ✨',
@@ -326,7 +325,6 @@ class LandingPage extends StatelessWidget {
             SizedBox(height: 30),
             ElevatedButton(
               onPressed: () {
-                // Add your sign-in logic here
               },
               child: Text('Sign In'),
             ),
@@ -584,8 +582,6 @@ class _SettingsPageState extends State<SettingsPage> {
             SizedBox(height: 20),
             ElevatedButton(
               onPressed: () {
-                // Apply selected settings (e.g., update background color and text font)
-                // You can implement this logic based on your app's requirements
               },
               child: Text('Apply Settings'),
             ),
