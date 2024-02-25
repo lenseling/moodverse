@@ -45,6 +45,18 @@ class MyAppState extends ChangeNotifier {
     }
     notifyListeners();
   }
+
+  var journalEntries = <JournalEntry>[];
+
+  void addJournalEntry(JournalEntry entry) {
+    journalEntries.add(entry);
+    notifyListeners();
+  }
+
+  void removeJournalEntry(int index) {
+    journalEntries.removeAt(index);
+    notifyListeners();
+  }
 }
 
 class MyHomePage extends StatefulWidget {
@@ -65,6 +77,8 @@ class _MyHomePageState extends State<MyHomePage> {
         page = FavoritesPage();
       case 2:
         page = MyJournalPage();
+      case 3:
+        page = GeneratorPage();
       default:
         throw UnimplementedError('no widget for $selectedIndex');
     }
@@ -88,6 +102,10 @@ class _MyHomePageState extends State<MyHomePage> {
                   NavigationRailDestination(
                     icon: Icon(Icons.create),
                     label: Text('My Journal'),
+                  ),
+                  NavigationRailDestination(
+                    icon: Icon(Icons.help),
+                    label: Text('Prompts'),
                   ),
                 ],
                 selectedIndex: selectedIndex,
@@ -321,68 +339,127 @@ class MyJournalPage extends StatefulWidget {
 
 class _MyJournalPageState extends State<MyJournalPage> {
   String _journalEntry = '';
+  List<JournalEntry> _savedEntries = [];
 
   @override
   Widget build(BuildContext context) {
-    return Center(
-      child: Column(
-        children: [
-          // Date at the top of the page
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Text(
-              'My Journal - ${DateTime.now().toString().substring(0, 10)}',
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-            ),
+    return DefaultTabController(
+      length: 2,
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text('My Journal'),
+          bottom: TabBar(
+            tabs: [
+              Tab(text: 'Write Entry'),
+              Tab(text: 'Saved Entries'),
+            ],
           ),
-          // User input for journal entry
-          Expanded(
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Container(
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(10.0),
-                  border: Border.all(color: Colors.grey),
-                ),
-                child: SingleChildScrollView(
-                  child: TextField(
-                    maxLines: null, // Allow multiple lines
-                    onChanged: (text) {
-                      setState(() {
-                        _journalEntry = text;
-                      });
-                    },
-                    decoration: InputDecoration(
-                      hintText: 'Write your journal entry here...',
-                      contentPadding: EdgeInsets.all(16.0),
-                      border: InputBorder.none,
+        ),
+        body: TabBarView(
+          children: [
+            Center(
+              child: Column(
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Text(
+                      'My Journal - ${DateTime.now().toString().substring(0, 10)}',
+                      style:
+                          TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                     ),
                   ),
-                ),
+                  Expanded(
+                    child: Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(10.0),
+                          border: Border.all(color: Colors.grey),
+                        ),
+                        child: SingleChildScrollView(
+                          child: TextField(
+                            maxLines: null,
+                            onChanged: (text) {
+                              setState(() {
+                                _journalEntry = text;
+                              });
+                            },
+                            decoration: InputDecoration(
+                              hintText: 'Write your journal entry here...',
+                              contentPadding: EdgeInsets.all(16.0),
+                              border: InputBorder.none,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                  ElevatedButton(
+                    onPressed: () {
+                      setState(() {
+                        _savedEntries.add(JournalEntry(
+                            entry: _journalEntry, date: DateTime.now()));
+                        _journalEntry = '';
+                      });
+                    },
+                    child: Text('Save Entry'),
+                  ),
+                ],
               ),
             ),
-          ),
-          // Prompt at the bottom of the screen
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: [
-                Image.asset(
-                  'assets/astrobear.png',
-                  width: 50,
-                  height: 50,
-                ),
-                Text(
-                  'How was your day?',
-                  style: TextStyle(fontSize: 18),
-                ),
-              ],
-            ),
-          ),
-        ],
+            SavedEntriesTab(savedEntries: _savedEntries),
+          ],
+        ),
       ),
     );
+  }
+}
+
+class SavedEntriesTab extends StatefulWidget {
+  final List<JournalEntry> savedEntries;
+
+  SavedEntriesTab({required this.savedEntries});
+
+  @override
+  _SavedEntriesTabState createState() => _SavedEntriesTabState();
+}
+
+class _SavedEntriesTabState extends State<SavedEntriesTab> {
+  @override
+  Widget build(BuildContext context) {
+    return ListView.builder(
+      itemCount: widget.savedEntries.length,
+      itemBuilder: (context, index) {
+        return ListTile(
+          title: Text(widget.savedEntries[index].entry),
+          subtitle: Text(
+              'Date: ${widget.savedEntries[index].date.toString().substring(0, 10)}'),
+          trailing: IconButton(
+            icon: Icon(widget.savedEntries[index].isFavorite
+                ? Icons.favorite
+                : Icons.favorite_border),
+            onPressed: () {
+              setState(() {
+                widget.savedEntries[index].toggleFavorite();
+              });
+            },
+          ),
+        );
+      },
+    );
+  }
+}
+
+class JournalEntry {
+  final String entry;
+  final DateTime date;
+  bool isFavorite;
+
+  JournalEntry(
+      {required this.entry, required this.date, this.isFavorite = false});
+
+  void toggleFavorite() {
+    isFavorite = !isFavorite;
   }
 }
