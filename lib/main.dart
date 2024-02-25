@@ -2,6 +2,7 @@ import 'package:english_words/english_words.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
+import 'package:chat_gpt_sdk/chat_gpt_sdk.dart';
 
 const appScheme = 'flutterdemo';
 
@@ -32,13 +33,37 @@ class MyApp extends StatelessWidget {
 }
 
 class MyAppState extends ChangeNotifier {
-  var current = WordPair.random();
-  void getNext() {
-    current = WordPair.random();
+  final _openAI = OpenAI.instance
+      .build(token: "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");
+
+  var current = "";
+
+  Future<void> getNext() async {
+    await getPrompt(); // Fetch the prompt before updating the current variable
     notifyListeners();
   }
 
-  var favorites = <WordPair>[];
+  Future<void> getPrompt() async {
+    final request = ChatCompleteText(
+        model: GptTurbo0301ChatModel(),
+        messages: [
+          {
+            "role": "user",
+            "content":
+                "generate a 1 journaling prompt to promote emotional wellness."
+          }
+        ],
+        maxToken: 200);
+    final response = await _openAI.onChatCompletion(request: request);
+    print("Response: $response");
+    for (var element in response!.choices) {
+      if (element.message != null) {
+        current = element.message!.content;
+      }
+    }
+  }
+
+  var favorites = <String>[];
 
   void toggleFavorite() {
     if (favorites.contains(current)) {
@@ -138,7 +163,19 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 }
 
-class GeneratorPage extends StatelessWidget {
+class GeneratorPage extends StatefulWidget {
+  @override
+  _GeneratorPageState createState() => _GeneratorPageState();
+}
+
+class _GeneratorPageState extends State<GeneratorPage> {
+  @override
+  void initState() {
+    super.initState();
+    // Fetch the prompt when the page is first loaded
+    context.read<MyAppState>().getNext();
+  }
+
   @override
   Widget build(BuildContext context) {
     var appState = context.watch<MyAppState>();
@@ -155,7 +192,15 @@ class GeneratorPage extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          BigCard(pair: pair),
+          Text(
+            pair.isNotEmpty ? pair : "Loading prompt...",
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              // Text color
+              fontSize: 18, // Font size
+              fontWeight: FontWeight.bold, // Font weight
+            ),
+          ),
           SizedBox(height: 10),
           Row(
             mainAxisSize: MainAxisSize.min,
@@ -234,7 +279,7 @@ class FavoritesPage extends StatelessWidget {
         for (var pair in appState.favorites)
           ListTile(
             leading: Icon(Icons.favorite),
-            title: Text(pair.asLowerCase),
+            title: Text(pair),
           ),
       ],
     );
