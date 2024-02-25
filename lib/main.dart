@@ -63,8 +63,8 @@ class _MyHomePageState extends State<MyHomePage> {
         page = LandingPage();
       case 1:
         page = FavoritesPage();
-      case 3:
-        page = GeneratorPage();
+      case 2:
+        page = MyJournalPage();
       default:
         throw UnimplementedError('no widget for $selectedIndex');
     }
@@ -84,6 +84,10 @@ class _MyHomePageState extends State<MyHomePage> {
                   NavigationRailDestination(
                     icon: Icon(Icons.favorite),
                     label: Text('Favorites'),
+                  ),
+                  NavigationRailDestination(
+                    icon: Icon(Icons.create),
+                    label: Text('My Journal'),
                   ),
                 ],
                 selectedIndex: selectedIndex,
@@ -306,6 +310,79 @@ class Login extends StatelessWidget {
         ),
         Text(loginError ?? ''),
       ],
+    );
+  }
+}
+
+class MyJournalPage extends StatefulWidget {
+  @override
+  _MyJournalPageState createState() => _MyJournalPageState();
+}
+
+class _MyJournalPageState extends State<MyJournalPage> {
+  String _journalEntry = '';
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Column(
+        children: [
+          // Date at the top of the page
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Text(
+              'My Journal - ${DateTime.now().toString().substring(0, 10)}',
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            ),
+          ),
+          // User input for journal entry
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Container(
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(10.0),
+                  border: Border.all(color: Colors.grey),
+                ),
+                child: SingleChildScrollView(
+                  child: TextField(
+                    maxLines: null, // Allow multiple lines
+                    onChanged: (text) {
+                      setState(() {
+                        _journalEntry = text;
+                      });
+                    },
+                    decoration: InputDecoration(
+                      hintText: 'Write your journal entry here...',
+                      contentPadding: EdgeInsets.all(16.0),
+                      border: InputBorder.none,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+          // Prompt at the bottom of the screen
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                Image.asset(
+                  'assets/astrobear.png',
+                  width: 50,
+                  height: 50,
+                ),
+                Text(
+                  'How was your day?',
+                  style: TextStyle(fontSize: 18),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
