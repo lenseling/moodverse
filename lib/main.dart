@@ -306,8 +306,8 @@ class LandingPage extends StatelessWidget {
               // Adjust width and height as needed
             ),
             Text(
-              'Your mood, your universe <3',
-              style: TextStyle(fontSize: 18),
+              'Your mood, your universe. ✨',
+              style: TextStyle(fontSize: 25),
             ),
             SizedBox(height: 30),
             ElevatedButton(
@@ -355,8 +355,10 @@ class _MyJournalPageState extends State<MyJournalPage> {
                     padding: const EdgeInsets.all(16.0),
                     child: Text(
                       'My Journal - ${DateTime.now().toString().substring(0, 10)}',
-                      style:
-                          TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                   ),
                   Expanded(
@@ -370,6 +372,7 @@ class _MyJournalPageState extends State<MyJournalPage> {
                         ),
                         child: SingleChildScrollView(
                           child: TextField(
+                            style: TextStyle(fontSize: 18),
                             maxLines: null,
                             onChanged: (text) {
                               setState(() {
@@ -406,10 +409,20 @@ class _MyJournalPageState extends State<MyJournalPage> {
                           width: 100,
                           height: 100,
                         ),
-                        Text(
-                          'How was your day?',
-                          style: TextStyle(fontSize: 18),
-                        ),
+                        Container(
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(10.0),
+                            border: Border.all(color: Colors.grey),
+                          ),
+                          child: Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Text(
+                              'How was your day?',
+                              style: TextStyle(fontSize: 18),
+                            ),
+                          ),
+                        )
                       ],
                     ),
                   ),
