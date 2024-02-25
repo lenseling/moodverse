@@ -1,13 +1,15 @@
+import 'dart:convert';
+
 import 'package:english_words/english_words.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
-import 'package:chat_gpt_sdk/chat_gpt_sdk.dart';
+import 'package:http/http.dart' as http;
 
 const appScheme = 'flutterdemo';
 
 void main() {
-  runApp(MyApp());
+  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
@@ -33,9 +35,6 @@ class MyApp extends StatelessWidget {
 }
 
 class MyAppState extends ChangeNotifier {
-  final _openAI = OpenAI.instance
-      .build(token: "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");
-
   var current = "";
 
   Future<void> getNext() async {
@@ -44,23 +43,36 @@ class MyAppState extends ChangeNotifier {
   }
 
   Future<void> getPrompt() async {
-    final request = ChatCompleteText(
-        model: GptTurbo0301ChatModel(),
-        messages: [
-          {
-            "role": "user",
-            "content":
-                "generate a 1 journaling prompt to promote emotional wellness."
-          }
-        ],
-        maxToken: 200);
-    final response = await _openAI.onChatCompletion(request: request);
-    print("Response: $response");
-    for (var element in response!.choices) {
-      if (element.message != null) {
-        current = element.message!.content;
-      }
+    current = "Loading prompt...";
+    final response = await http.post(
+      Uri.parse('https://api.openai.com/v1/chat/completions'), 
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": "Bearer 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"
+      }, 
+      body: jsonEncode({
+          "model": "gpt-3.5-turbo",
+          "messages": [
+            {
+              "role": "system",
+              "content": "You are a helpful assistant designed to provide a journaling prompt."
+            },
+            {
+              "role": "user",
+              "content": "Generate a 1 sentence journaling prompt to promote emotional wellness."
+            }
+          ]
+        })
+    );
+    print('Response status code: ${response.statusCode}');
+    final responseData = jsonDecode(response.body);
+    final choices = responseData['choices'];
+    if (choices != null && choices.isNotEmpty) {
+      current = choices[0]['message']['content'];
+    } else {
+      current = "Failed to fetch prompt"; // Handle if no choices are returned
     }
+      
   }
 
   var favorites = <String>[];
@@ -225,6 +237,8 @@ class _GeneratorPageState extends State<GeneratorPage> {
       ),
     );
   }
+
+
 }
 
 class BigCard extends StatelessWidget {
