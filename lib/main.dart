@@ -1,6 +1,9 @@
 import 'package:english_words/english_words.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:auth0_flutter/auth0_flutter.dart';
+
+const appScheme = 'flutterdemo';
 
 void main() {
   runApp(MyApp());
@@ -57,11 +60,11 @@ class _MyHomePageState extends State<MyHomePage> {
     Widget page;
     switch (selectedIndex) {
       case 0:
-        page = GeneratorPage();
-        break;
+        page = LandingPage();
       case 1:
         page = FavoritesPage();
-        break;
+      case 3:
+        page = GeneratorPage();
       default:
         throw UnimplementedError('no widget for $selectedIndex');
     }
@@ -202,6 +205,106 @@ class FavoritesPage extends StatelessWidget {
             leading: Icon(Icons.favorite),
             title: Text(pair.asLowerCase),
           ),
+      ],
+    );
+  }
+}
+
+class LandingPage extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.only(
+          top: 130.0, // Only top padding is set to 20.0
+          left: 0.0,
+          right: 0.0,
+          bottom: 0.0,
+        ),
+        child: Column(
+          children: [
+            Image.asset(
+              './assets/logo-transparent.png',
+              width: 300,
+              height: 300,
+              // Adjust width and height as needed
+            ),
+            Text(
+              'Your mood, your universe <3',
+              style: TextStyle(fontSize: 18),
+            ),
+            SizedBox(height: 30),
+            ElevatedButton(
+              onPressed: () {
+                // Add your sign-in logic here
+              },
+              child: Text('Sign In'),
+            ),
+            SizedBox(height: 20),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class Profile extends StatelessWidget {
+  final Future<void> Function() logoutAction;
+  final UserProfile? user;
+
+  const Profile(this.logoutAction, this.user, {final Key? key})
+      : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: <Widget>[
+        Container(
+          width: 150,
+          height: 150,
+          decoration: BoxDecoration(
+            border: Border.all(color: Colors.blue, width: 4),
+            shape: BoxShape.circle,
+            image: DecorationImage(
+              fit: BoxFit.fill,
+              image: NetworkImage(user?.pictureUrl.toString() ?? ''),
+            ),
+          ),
+        ),
+        const SizedBox(height: 24),
+        Text('Name: ${user?.name}'),
+        const SizedBox(height: 48),
+        ElevatedButton(
+          onPressed: () async {
+            await logoutAction();
+          },
+          child: const Text('Logout'),
+        ),
+      ],
+    );
+  }
+}
+
+class Login extends StatelessWidget {
+  final Future<void> Function() loginAction;
+  final String loginError;
+
+  const Login(this.loginAction, this.loginError, {final Key? key})
+      : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: <Widget>[
+        ElevatedButton(
+          onPressed: () async {
+            await loginAction();
+          },
+          child: const Text('Login'),
+        ),
+        Text(loginError ?? ''),
       ],
     );
   }
