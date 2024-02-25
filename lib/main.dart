@@ -48,18 +48,18 @@ class MyAppState extends ChangeNotifier {
       Uri.parse('https://api.openai.com/v1/chat/completions'), 
       headers: {
         "Content-Type": "application/json",
-        "Authorization": "Bearer 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"
+        "Authorization": "Bearer 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"
       }, 
       body: jsonEncode({
           "model": "gpt-3.5-turbo",
           "messages": [
             {
               "role": "system",
-              "content": "You are a helpful assistant designed to provide a journaling prompt."
+              "content": "You are a helpful assistant designed to provide a journaling prompt to promote emotional wellness."
             },
             {
               "role": "user",
-              "content": "Generate a 1 sentence journaling prompt to promote emotional wellness."
+              "content": "Generate a 1 sentence journaling prompt."
             }
           ]
         })
