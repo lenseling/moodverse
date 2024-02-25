@@ -1,7 +1,7 @@
 import 'package:english_words/english_words.dart';
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
-import 'package:auth0_flutter/auth0_flutter.dart';
 import 'package:chat_gpt_sdk/chat_gpt_sdk.dart';
 
 const appScheme = 'flutterdemo';
@@ -22,6 +22,9 @@ class MyApp extends StatelessWidget {
         theme: ThemeData(
           useMaterial3: true,
           colorScheme: ColorScheme.fromSeed(seedColor: Color(0x5302E3)),
+          textTheme: GoogleFonts.latoTextTheme(
+            Theme.of(context).textTheme,
+          ),
         ),
         home: MyHomePage(),
       ),
@@ -30,27 +33,35 @@ class MyApp extends StatelessWidget {
 }
 
 class MyAppState extends ChangeNotifier {
-  final _openAI = OpenAI.instance.build(token: "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");
-  
-   var current = "";
-  
+  final _openAI = OpenAI.instance
+      .build(token: "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");
+
+  var current = "";
+
   Future<void> getNext() async {
     await getPrompt(); // Fetch the prompt before updating the current variable
     notifyListeners();
   }
 
-    Future<void> getPrompt() async {
-    final request = ChatCompleteText(model: GptTurbo0301ChatModel(), 
-    messages: [{"role": "user", "content": "generate a 1 journaling prompt to promote emotional wellness."}], 
-    maxToken: 200);
+  Future<void> getPrompt() async {
+    final request = ChatCompleteText(
+        model: GptTurbo0301ChatModel(),
+        messages: [
+          {
+            "role": "user",
+            "content":
+                "generate a 1 journaling prompt to promote emotional wellness."
+          }
+        ],
+        maxToken: 200);
     final response = await _openAI.onChatCompletion(request: request);
     print("Response: $response");
     for (var element in response!.choices) {
       if (element.message != null) {
-          current = element.message!.content;
-        }
+        current = element.message!.content;
       }
     }
+  }
 
   var favorites = <String>[];
 
@@ -96,6 +107,8 @@ class _MyHomePageState extends State<MyHomePage> {
         page = MyJournalPage();
       case 3:
         page = GeneratorPage();
+      case 4:
+        page = SettingsPage();
       default:
         throw UnimplementedError('no widget for $selectedIndex');
     }
@@ -124,6 +137,10 @@ class _MyHomePageState extends State<MyHomePage> {
                     icon: Icon(Icons.help),
                     label: Text('Prompts'),
                   ),
+                  NavigationRailDestination(
+                    icon: Icon(Icons.settings),
+                    label: Text('Settings'),
+                  ),
                 ],
                 selectedIndex: selectedIndex,
                 onDestinationSelected: (value) {
@@ -149,10 +166,10 @@ class _MyHomePageState extends State<MyHomePage> {
 class GeneratorPage extends StatefulWidget {
   @override
   _GeneratorPageState createState() => _GeneratorPageState();
-} 
+}
 
 class _GeneratorPageState extends State<GeneratorPage> {
-    @override
+  @override
   void initState() {
     super.initState();
     // Fetch the prompt when the page is first loaded
@@ -176,12 +193,13 @@ class _GeneratorPageState extends State<GeneratorPage> {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Text(
-          pair.isNotEmpty ? pair : "Loading prompt...",
-          textAlign: TextAlign.center,
-          style: TextStyle( // Text color
-          fontSize: 18, // Font size
-          fontWeight: FontWeight.bold, // Font weight
-          ),
+            pair.isNotEmpty ? pair : "Loading prompt...",
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              // Text color
+              fontSize: 18, // Font size
+              fontWeight: FontWeight.bold, // Font weight
+            ),
           ),
           SizedBox(height: 10),
           Row(
@@ -302,68 +320,6 @@ class LandingPage extends StatelessWidget {
           ],
         ),
       ),
-    );
-  }
-}
-
-class Profile extends StatelessWidget {
-  final Future<void> Function() logoutAction;
-  final UserProfile? user;
-
-  const Profile(this.logoutAction, this.user, {final Key? key})
-      : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: <Widget>[
-        Container(
-          width: 150,
-          height: 150,
-          decoration: BoxDecoration(
-            border: Border.all(color: Colors.blue, width: 4),
-            shape: BoxShape.circle,
-            image: DecorationImage(
-              fit: BoxFit.fill,
-              image: NetworkImage(user?.pictureUrl.toString() ?? ''),
-            ),
-          ),
-        ),
-        const SizedBox(height: 24),
-        Text('Name: ${user?.name}'),
-        const SizedBox(height: 48),
-        ElevatedButton(
-          onPressed: () async {
-            await logoutAction();
-          },
-          child: const Text('Logout'),
-        ),
-      ],
-    );
-  }
-}
-
-class Login extends StatelessWidget {
-  final Future<void> Function() loginAction;
-  final String loginError;
-
-  const Login(this.loginAction, this.loginError, {final Key? key})
-      : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: <Widget>[
-        ElevatedButton(
-          onPressed: () async {
-            await loginAction();
-          },
-          child: const Text('Login'),
-        ),
-        Text(loginError ?? ''),
-      ],
     );
   }
 }
@@ -514,5 +470,101 @@ class JournalEntry {
 
   void toggleFavorite() {
     isFavorite = !isFavorite;
+  }
+}
+
+class SettingsPage extends StatefulWidget {
+  @override
+  _SettingsPageState createState() => _SettingsPageState();
+}
+
+class colorPreset {
+  final Color color;
+  final String presetName;
+
+  colorPreset({required this.color, required this.presetName});
+}
+
+class _SettingsPageState extends State<SettingsPage> {
+  // Define variables to store user selections
+  colorPreset? selectedColor;
+  String? selectedFont;
+
+  // Define a list of colors and fonts for dropdown menus
+
+  List<colorPreset> colors = [
+    colorPreset(color: Colors.red, presetName: "Red"),
+    colorPreset(color: Colors.blue, presetName: "Blue"),
+    colorPreset(color: Colors.green, presetName: "Green"),
+    colorPreset(color: Colors.yellow, presetName: "Yellow"),
+  ];
+
+  List<String> fonts = [
+    'Arial',
+    'Roboto',
+    'Times New Roman',
+    'Courier New',
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Settings'),
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Select Background Color:',
+              style: TextStyle(fontSize: 18),
+            ),
+            DropdownButton<colorPreset>(
+              value: selectedColor,
+              onChanged: (colorPreset? color) {
+                setState(() {
+                  selectedColor = color;
+                });
+              },
+              items: colors.map((colorPreset color) {
+                return DropdownMenuItem<colorPreset>(
+                  value: color,
+                  child: Text(color.presetName),
+                );
+              }).toList(),
+            ),
+            SizedBox(height: 20),
+            Text(
+              'Select Text Font:',
+              style: TextStyle(fontSize: 18),
+            ),
+            DropdownButton<String>(
+              value: selectedFont,
+              onChanged: (String? font) {
+                setState(() {
+                  selectedFont = font;
+                });
+              },
+              items: fonts.map((String font) {
+                return DropdownMenuItem<String>(
+                  value: font,
+                  child: Text(font),
+                );
+              }).toList(),
+            ),
+            SizedBox(height: 20),
+            ElevatedButton(
+              onPressed: () {
+                // Apply selected settings (e.g., update background color and text font)
+                // You can implement this logic based on your app's requirements
+              },
+              child: Text('Apply Settings'),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }
